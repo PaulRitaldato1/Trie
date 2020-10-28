@@ -5,37 +5,34 @@ namespace atheris
 {
     void Trie::insert(std::string& inWord)
     {
-
-		insertInternal(toLower(inWord));
+	insertInternal(toLower(inWord));
     }
 
     void Trie::insert(std::string&& inWord)
     {
-
         insertInternal(toLower(inWord));
     }
 
     void Trie::insertInternal(std::string&& inWord)
     {
 
-		std::shared_ptr<Node> temp = root;
+	std::shared_ptr<Node> temp = root;
 
-		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const char key : inWord)
+	std::unique_lock<std::mutex> lock(m_mutex);
+	for (const char key : inWord)
+	{
+
+		//check if char is in current node, if not, insert it
+		if (temp->charMap.find(key) == temp->charMap.end())
 		{
-
-			//check if char is in current node, if not, insert it
-			if (temp->charMap.find(key) == temp->charMap.end())
-			{
-				temp->charMap.emplace(key, std::make_shared<Node>());
-			}
-
-			temp = temp->charMap[key];
-
+			temp->charMap.emplace(key, std::make_shared<Node>());
 		}
 
-		++temp->m_count;
-		temp->m_isWord = true;
+		temp = temp->charMap[key];
+	}
+
+	++temp->m_count;
+	temp->m_isWord = true;
     }
 
     void Trie::remove(std::string&& inWord)
@@ -52,12 +49,12 @@ namespace atheris
     void Trie::remove(std::string& inWord)
     {
 
-		if (!root)
-		{
-			return;
-		}
+	if (!root)
+	{
+		return;
+	}
 
-		removeInternal(toLower(inWord));
+	removeInternal(toLower(inWord));
     }
 
     void Trie::removeInternal(std::string&& inWord)
@@ -120,7 +117,7 @@ namespace atheris
     bool Trie::search(std::string& inWord)
     {
 
-		std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 
         auto temp = searchInternal(toLower(inWord));
         return temp ? temp->m_isWord : false;
@@ -129,7 +126,7 @@ namespace atheris
     bool Trie::search(std::string&& inWord)
     {
 
-		std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 
         auto temp = searchInternal(toLower(inWord));
         return temp ? temp->m_isWord : false;
@@ -138,7 +135,7 @@ namespace atheris
     unsigned Trie::searchCount(std::string& inWord)
     {
 
-		std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 
         auto temp = searchInternal(toLower(inWord));
         return temp ? temp->m_count : 0;
@@ -146,7 +143,7 @@ namespace atheris
     unsigned Trie::searchCount(std::string&& inWord)
     {
 
-		std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<std::mutex> lock(m_mutex);
 
         auto temp = searchInternal(toLower(inWord));
         return temp ? temp->m_count : 0;
